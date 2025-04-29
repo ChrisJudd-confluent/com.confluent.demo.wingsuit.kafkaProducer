@@ -36,7 +36,7 @@ The Kafka Wingsuit Producer reads flight telemetry data (latitude, longitude, al
 
 2.  **Clone the Repository (if applicable):**
     ```bash
-    git clone [YOUR_REPOSITORY_URL]
+    git clone https://github.com/ChrisJudd-confluent/com.confluent.demo.wingsuit.kafkaProducer.git
     cd kafka-wingsuit-producer
     ```
 
