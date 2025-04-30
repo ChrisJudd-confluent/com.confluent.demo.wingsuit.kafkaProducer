@@ -23,16 +23,23 @@
 
 package com.confluent.demo.wingsuit;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -41,14 +48,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class KafkaWingsuitProducer {
 /**
@@ -121,7 +120,6 @@ public class KafkaWingsuitProducer {
           Future<RecordMetadata> future = producer.send(producerRecord); // Get the Future
           RecordMetadata metadata = future.get(); // Block and get the result
           System.out.println("Message sent successfully. Offset: " + metadata.offset());
-          //producer.send(producerRecord);
           //now sleep for 200ms just like flysight does
           Thread.sleep(200);
           System.out.println("record sent....");
@@ -151,10 +149,12 @@ public class KafkaWingsuitProducer {
               }
               String[] values = line.split(",");
 
-              if (values.length == 14) { // Ensure all 13 columns are present
+              if (values.length == 14) { // Ensure all 14 columns are present
                   try {
                       GenericRecord record = new GenericData.Record(schema);
-                      record.put("time", values[0].trim());
+                      //lets remove the "T" from a flysight data and replace with a " " and the "Z" with ""                      
+                      String timeValue = values[0].trim().replace("T", " ").replace("Z", "");
+                      record.put("time", timeValue);
                       record.put("lat", Double.parseDouble(values[1].trim()));
                       record.put("lon", Double.parseDouble(values[2].trim()));
                       record.put("hMSL", Double.parseDouble(values[3].trim()));
